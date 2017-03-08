@@ -1,124 +1,46 @@
 ﻿using System;
-
 using System.Collections.Generic;
-
 using System.Linq;
-
 using System.Text;
-
 using System.Threading.Tasks;
 
-
-
-namespace ProgrammingAssingnment1
-
+namespace ProgrammingAssignment1
 {
-
+    /// <summary>
+    /// Given two points from the user, tthis program calculates the distance and the angle.
+    /// </summary>
     class Program
-
     {
-
-        public static double pointx = 0;
-
-        public static double pointy = 0;
-
-        public static int result = 0;
-
-
-
-        static void Main(string[] args)
-
-        {
-
-            ///code to user///
-
-            ///
-
-            Console.WriteLine("Welcome User, Use This Application To Find The Distance Between two points");
-
-            Console.WriteLine();
-
-
-
-            ///code to select points///
-
-            ///
-
-            GetDisplay();
-
-            GetResult(result);
-
-        }
-
         /// <summary>
-
-        /// GetDisplay in order to let user select points///
-
+        /// Given two points from the user, tthis program calculates the distance and the angle.
         /// </summary>
-
-        static void GetDisplay()
-
+        /// <param name="args"></param>
+        static void Main(string[] args)
         {
+            Console.WriteLine("Welcome! this application will calculate the distance between two points and the angle between those points.\n\n");
 
-            Console.WriteLine("please select two points");
+            //Gets the coordinates from the user.
+            Console.WriteLine("Please, introduce the X value for the first point:");
+            float point1X = float.Parse(Console.ReadLine());
+            Console.WriteLine("Please, introduce the Y value for the first point:");
+            float point1Y = float.Parse(Console.ReadLine());
+            Console.WriteLine("Please, introduce the X value for the second point:");
+            float point2X = float.Parse(Console.ReadLine());
+            Console.WriteLine("Please, introduce the Y value for the second point:");
+            float point2Y = float.Parse(Console.ReadLine());
 
-            Console.WriteLine();
+            //Calculate the delta x and delta y between the two points.
+            double deltaX = point2X - point1X;
+            double deltaY = point2Y - point1Y;
 
-        }
+            //Calculate the distance between the two points using the Pythagorean Theorem.
+            double distance = Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
+            Console.WriteLine("\nThe distance between the two points is: " + distance.ToString("0.000"));
 
-        static void GetResult(int result)
-
-        {
-
-            double pointx = 2;
-
-            double pointy = 1;
-
-            double pointx2 = 1;
-
-            double pointy2 = pointy;
-
-            double distance = 0;
-
-            result = int.Parse(Console.ReadLine());
-
-
-
-            switch (result)
-
-            {
-
-                ///solving the problem between pointx and pointy///
-
-                ///
-
-                case 1:
-
-                    Console.WriteLine("enter pointx");
-
-                    Console.WriteLine("enter pointy");
-
-                    Console.WriteLine();
-
-                    {
-
-                        pointx = double.Parse(Console.ReadLine());
-
-                        distance = Math.Sqrt((pointx - pointx2) * (pointx - pointx2) + (pointy - pointy2) * (pointy - pointy2));
-
-                        Console.WriteLine("{0}", distance);
-
-                        {
-
-                            break;
-
-
-
-                        }
-
-                    }
-
-            }
+            //Calculate the angle we'd have to move in to go from point 1 to point 2
+            const double Rad2Deg = 180.0 / Math.PI;
+            double angle = Math.Atan2(deltaY, deltaX) * Rad2Deg;
+            Console.WriteLine("\nThe angle between the two points is: " + angle.ToString("0.000") + " degrees\n");
         }
     }
 }
