@@ -1,9 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
+<<<<<<< HEAD
 VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntroToStrings", "IntroToStrings\IntroToStrings.csproj", "{8E6B31DE-8D2A-4912-AB35-6FA736E2DF5F}"
+=======
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntroToStrings", "IntroToStrings\IntroToStrings.csproj", "{5C81E183-F83C-4B19-8FA6-30955B4779BA}"
+>>>>>>> 830fe88290bbc0470129de4d3b83496a294a6361
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +17,17 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+<<<<<<< HEAD
 		{8E6B31DE-8D2A-4912-AB35-6FA736E2DF5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8E6B31DE-8D2A-4912-AB35-6FA736E2DF5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8E6B31DE-8D2A-4912-AB35-6FA736E2DF5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8E6B31DE-8D2A-4912-AB35-6FA736E2DF5F}.Release|Any CPU.Build.0 = Release|Any CPU
+=======
+		{5C81E183-F83C-4B19-8FA6-30955B4779BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C81E183-F83C-4B19-8FA6-30955B4779BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C81E183-F83C-4B19-8FA6-30955B4779BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C81E183-F83C-4B19-8FA6-30955B4779BA}.Release|Any CPU.Build.0 = Release|Any CPU
+>>>>>>> 830fe88290bbc0470129de4d3b83496a294a6361
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

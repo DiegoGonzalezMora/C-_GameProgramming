@@ -5,16 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("IntroToStrings")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("ProgrammingAssignment2")]
+[assembly: AssemblyProduct("ProgrammingAssignment2")]
 [assembly: AssemblyConfiguration("")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("IntroToStrings")]
-<<<<<<< HEAD
-[assembly: AssemblyCopyright("Copyright ©  2015")]
-=======
 [assembly: AssemblyCopyright("Copyright ©  2017")]
->>>>>>> 830fe88290bbc0470129de4d3b83496a294a6361
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -24,11 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-<<<<<<< HEAD
-[assembly: Guid("8e6b31de-8d2a-4912-ab35-6fa736e2df5f")]
-=======
-[assembly: Guid("5c81e183-f83c-4b19-8fa6-30955b4779ba")]
->>>>>>> 830fe88290bbc0470129de4d3b83496a294a6361
+[assembly: Guid("dc91085a-418c-4ad7-8531-251025f98d9a")]
 
 // Version information for an assembly consists of the following four values:
 //
