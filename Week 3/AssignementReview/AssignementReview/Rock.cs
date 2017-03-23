@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -56,9 +55,7 @@ namespace ProgrammingAssignment3
         }
 
         #endregion
-
         #region Properties
-
         /// <summary>
         /// Sets the rock's velocity
         /// </summary>
@@ -90,23 +87,18 @@ namespace ProgrammingAssignment3
         public void Update(GameTime gameTime)
         {
             // STUDENTS: Only update the rock if it's inside the window
-            if (outsideWindow == false)
+            if (!outsideWindow)
             {
-
                 // STUDENTS: Update the rock's location
                 drawRectangle.X += (int)(velocity.X * gameTime.ElapsedGameTime.Milliseconds);
-
                 drawRectangle.Y += (int)(velocity.Y * gameTime.ElapsedGameTime.Milliseconds);
-            }
-            if (drawRectangle.X <= 0 - drawRectangle.Width || drawRectangle.X >= windowWidth + drawRectangle.Width || drawRectangle.Y <= 0 - drawRectangle.Height || drawRectangle.Y >= windowHeight + drawRectangle.Height)
-            {
                 // STUDENTS: Set outsideWindow to true if the rock is outside the window
+            }
+            if (drawRectangle.Top > windowHeight || drawRectangle.Bottom < 0 ||
+                    drawRectangle.Right < 0 || drawRectangle.Left > windowWidth)
                 outsideWindow = true;
-            }
             else
-            {
                 outsideWindow = false;
-            }
 
         }
 
@@ -117,12 +109,11 @@ namespace ProgrammingAssignment3
         public void Draw(SpriteBatch spriteBatch)
         {
             // STUDENTS: Only draw the rock if it's inside the window
-            if (outsideWindow == false)
+            if (!outsideWindow)
             {
-
                 // STUDENTS: Draw the rock
-                spriteBatch.Draw(sprite, drawRectangle, Color.White);
                 // Caution: Don't include spriteBatch.Begin or spriteBatch.End here
+                spriteBatch.Draw(sprite, drawRectangle, Color.White);
             }
         }
 
