@@ -88,7 +88,10 @@ namespace GameProject
             // load projectile and explosion sprites
 
             // add initial game objects
-            burger = new Burger(Content, @"graphics/burger", GameConstants.WindowWidth / 2, GameConstants.WindowHeight * 7 / 8 , null);
+            burger = new Burger(Content, @"graphics\burger",
+                graphics.PreferredBackBufferWidth / 2,
+                graphics.PreferredBackBufferHeight - graphics.PreferredBackBufferHeight / 8,
+                null);
             SpawnBear();
 
             // set initial health and score strings
@@ -210,22 +213,26 @@ namespace GameProject
         private void SpawnBear()
         {
             // generate random location
-            int y = GetRandomLocation(GameConstants.SpawnBorderSize, GameConstants.WindowHeight - GameConstants.SpawnBorderSize*2);
-            int x = GetRandomLocation(GameConstants.SpawnBorderSize, GameConstants.WindowWidth - GameConstants.SpawnBorderSize*2);
+            int x = GetRandomLocation(GameConstants.SpawnBorderSize,
+                graphics.PreferredBackBufferWidth - 2 * GameConstants.SpawnBorderSize);
+            int y = GetRandomLocation(GameConstants.SpawnBorderSize,
+                graphics.PreferredBackBufferHeight - 2 * GameConstants.SpawnBorderSize);
 
             // generate random velocity
-            float speed = GameConstants.MinBearSpeed + RandomNumberGenerator.NextFloat(GameConstants.BearSpeedRange);
-            float angle = RandomNumberGenerator.NextFloat((float)Math.PI*2);
-            Vector2 velocity = new Vector2((float)(speed * Math.Cos(angle)), (float)(speed * Math.Sin(angle)));
+            float speed = GameConstants.MinBearSpeed +
+                RandomNumberGenerator.NextFloat(GameConstants.BearSpeedRange);
+            float angle = RandomNumberGenerator.NextFloat(2 * (float)Math.PI);
+            Vector2 velocity = new Vector2(
+                (float)(speed * Math.Cos(angle)), (float)(speed * Math.Sin(angle)));
 
             // create new bear
-            TeddyBear bear = new TeddyBear(Content, @"graphics/teddybear", x, y, velocity, null, null);
+            TeddyBear newBear = new TeddyBear(Content, @"graphics\teddybear", x, y, velocity,
+                null, null);
 
             // make sure we don't spawn into a collision
 
             // add new bear to list
-            bears.Add(bear);
-
+            bears.Add(newBear);
         }
 
         /// <summary>
