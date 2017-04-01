@@ -28,6 +28,9 @@ namespace XnaMouseInput
         Texture2D character2;
         Texture2D character3;
 
+        // click support
+        ButtonState previousButtonState = ButtonState.Released;
+
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -114,6 +117,58 @@ namespace XnaMouseInput
             {
                 drawRectangle.Y = WindowHeight - drawRectangle.Height;
             }
+
+            // change character on left mouse click (NOT LEFT MOUSE PRESS!)
+            if (mouse.LeftButton == ButtonState.Released &&
+                previousButtonState == ButtonState.Pressed)
+            {
+                // change to random character
+                int characterNumber = rand.Next(4);
+                if (characterNumber == 0)
+                {
+                    currentCharacter = character0;
+                }
+                else if (characterNumber == 1)
+                {
+                    currentCharacter = character1;
+                }
+                else if (characterNumber == 2)
+                {
+                    currentCharacter = character2;
+                }
+                else
+                {
+                    currentCharacter = character3;
+                }
+                drawRectangle.Width = currentCharacter.Width;
+                drawRectangle.Height = currentCharacter.Height;
+            }
+            previousButtonState = mouse.LeftButton;
+
+            // left mouse press code - BAD
+            //if (mouse.LeftButton == ButtonState.Pressed)
+            //{
+            //    // change to random character
+            //    int characterNumber = rand.Next(4);
+            //    if (characterNumber == 0)
+            //    {
+            //        currentCharacter = character0;
+            //    }
+            //    else if (characterNumber == 1)
+            //    {
+            //        currentCharacter = character1;
+            //    }
+            //    else if (characterNumber == 2)
+            //    {
+            //        currentCharacter = character2;
+            //    }
+            //    else
+            //    {
+            //        currentCharacter = character3;
+            //    }
+            //    drawRectangle.Width = currentCharacter.Width;
+            //    drawRectangle.Height = currentCharacter.Height;
+            //}
 
             base.Update(gameTime);
         }
