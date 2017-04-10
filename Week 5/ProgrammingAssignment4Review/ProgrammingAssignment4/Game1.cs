@@ -1,8 +1,12 @@
-﻿using System.Collections.Generic;
+﻿#region Using Statements
+using System;
+using System.Collections.Generic;
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+
+#endregion
 
 namespace ProgrammingAssignment4
 {
@@ -50,8 +54,8 @@ namespace ProgrammingAssignment4
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-
             base.Initialize();
+
         }
 
         /// <summary>
@@ -64,26 +68,12 @@ namespace ProgrammingAssignment4
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // STUDENTS: load teddy and pickup sprites
-            teddySprite = new Texture2D(GraphicsDevice, WindowWidth, WindowHeight);
-            pickupSprite = new Texture2D(GraphicsDevice, WindowWidth, WindowHeight);
             teddySprite = Content.Load<Texture2D>(@"graphics/teddybear");
             pickupSprite = Content.Load<Texture2D>(@"graphics/pickup");
 
+
             // STUDENTS: create teddy object centered in window
-            teddy = new TeddyBear(teddySprite, new Vector2(WindowWidth / 2 - teddySprite.Width / 2 , 
-                WindowHeight / 2 - teddySprite.Height / 2));
-
-
-
-        }
-
-        /// <summary>
-        /// UnloadContent will be called once per game and is the place to unload
-        /// game-specific content.
-        /// </summary>
-        protected override void UnloadContent()
-        {
-            // TODO: Unload any non ContentManager content here
+            teddy = new TeddyBear(teddySprite, new Vector2(WindowWidth / 2f, WindowHeight / 2f));
         }
 
         /// <summary>
@@ -93,8 +83,15 @@ namespace ProgrammingAssignment4
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+            // For Mobile devices, this logic will close the Game when the Back button is pressed
+            // Exit() is obsolete on iOS
+#if !__IOS__
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
+                Keyboard.GetState().IsKeyDown(Keys.Escape))
+            {
                 Exit();
+            }
+#endif
 
             // STUDENTS: get current mouse state and update teddy
             MouseState mouse = Mouse.GetState();
@@ -115,14 +112,16 @@ namespace ProgrammingAssignment4
                 if (rightClickStarted)
                 {
                     rightClickStarted = false;
-                        
-                    
+
                     // STUDENTS: add a new pickup to the end of the list of pickups
-                    pickups.Add(new Pickup(pickupSprite, new Vector2(mouse.X, mouse.Y)));
-                    teddy.SetTarget(pickups[0].CollisionRectangle.Center.ToVector2());
-                    /*teddy.SetTarget(new Vector2(pickups[0].CollisionRectangle.X + pickups[0].CollisionRectangle.Width / 2,
-                        pickups[0].CollisionRectangle.Y + pickups[0].CollisionRectangle.Height / 2));*/
-                    
+                    Vector2 pos = new Vector2(mouse.X, mouse.Y);
+                    pickups.Add(new Pickup(pickupSprite, pos));
+
+                    // STUDENTS: if this is the first pickup in the list, set teddy target
+                    if (pickups.Count == 1)
+                    {
+                        teddy.SetTarget(pos);
+                    }
                 }
             }
 
@@ -130,16 +129,21 @@ namespace ProgrammingAssignment4
             if (teddy.Collecting &&
                 teddy.CollisionRectangle.Intersects(pickups[0].CollisionRectangle))
             {
-                // STUDENTS: remove targeted pickup from list(it's always at location 0)
+                // STUDENTS: remove targeted pickup from list (it's always at location 0)
                 pickups.RemoveAt(0);
 
                 // STUDENTS: if there's another pickup to collect, set teddy target
                 // If not, clear teddy target and stop the teddy from collecting
                 if (pickups.Count > 0)
                 {
-                    teddy.SetTarget(pickups[0].CollisionRectangle.Center.ToVector2());
+                    teddy.SetTarget(new Vector2(
+                        pickups[0].CollisionRectangle.X +
+                            pickups[0].CollisionRectangle.Width / 2f,
+                        pickups[0].CollisionRectangle.Y +
+                            pickups[0].CollisionRectangle.Height / 2f));
                 }
-                else {
+                else
+                {
                     teddy.ClearTarget();
                     teddy.Collecting = false;
                 }
@@ -155,7 +159,7 @@ namespace ProgrammingAssignment4
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            graphics.GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // draw game objects
             spriteBatch.Begin();
@@ -170,4 +174,3 @@ namespace ProgrammingAssignment4
         }
     }
 }
-
