@@ -119,9 +119,12 @@ namespace ProgrammingAssignment4
                     
                     // STUDENTS: add a new pickup to the end of the list of pickups
                     pickups.Add(new Pickup(pickupSprite, new Vector2(mouse.X, mouse.Y)));
+                    //*
                     teddy.SetTarget(pickups[0].CollisionRectangle.Center.ToVector2());
-                    /*teddy.SetTarget(new Vector2(pickups[0].CollisionRectangle.X + pickups[0].CollisionRectangle.Width / 2,
-                        pickups[0].CollisionRectangle.Y + pickups[0].CollisionRectangle.Height / 2));*/
+                    /*/
+                    teddy.SetTarget(new Vector2(pickups[0].CollisionRectangle.X + pickups[0].CollisionRectangle.Width / 2,
+                        pickups[0].CollisionRectangle.Y + pickups[0].CollisionRectangle.Height / 2));
+                    //*/
                     
                 }
             }
@@ -137,7 +140,12 @@ namespace ProgrammingAssignment4
                 // If not, clear teddy target and stop the teddy from collecting
                 if (pickups.Count > 0)
                 {
+                    //*
                     teddy.SetTarget(pickups[0].CollisionRectangle.Center.ToVector2());
+                    /*/
+                    teddy.SetTarget(new Vector2(pickups[0].CollisionRectangle.X + pickups[0].CollisionRectangle.Width / 2,
+                        pickups[0].CollisionRectangle.Y + pickups[0].CollisionRectangle.Height / 2));
+                    //*/
                 }
                 else {
                     teddy.ClearTarget();
