@@ -136,24 +136,28 @@ namespace ProgrammingAssignment5
                 bears.Add(teddyBear);
             }
 
-            // update and blow up teddy bears
+            // update teddy bears
             foreach (TeddyBear teddyBear in bears)
             {
                 teddyBear.Update(gameTime);
+            }
 
-
-                // check for collision between collecting teddy and mine
-                foreach (Mine mine in mines)
+            //blow up teddy bears
+            for (int j = bears.Count - 1; j >= 0; j--)
+            {
+                for (int i = mines.Count - 1; i >= 0; i--)
                 {
-                    if (mine.CollisionRectangle.Intersects(teddyBear.CollisionRectangle))
+                    if (bears[j].CollisionRectangle.Intersects(mines[i].CollisionRectangle))
                     {
-                        teddyBear.Active = false;
-                        mine.Active = false;
+                        bears[j].Active = false;
+                        mines[i].Active = false;
+                        explosions.Add(new Explosion(explosionSprite,
+                            mines[i].CollisionRectangle.X,
+                            mines[i].CollisionRectangle.Y));
 
-                        explosion = new Explosion(explosionSprite, teddyBear.CollisionRectangle.X,
-                            teddyBear.CollisionRectangle.Y);
-
-                        explosions.Add(explosion);
+                        mines.RemoveAt(i);
+                        bears.RemoveAt(j);
+                        i = 0;
                     }
                 }
             }
@@ -165,11 +169,11 @@ namespace ProgrammingAssignment5
             }
 
             // remove not playing explosion from the list. Shouldn't this remove the sprite? o.O
-           /* for (int i = explosions.Count - 1; i >= 0; i--)
+            for (int i = explosions.Count - 1; i >= 0; i--)
             {
                 if (!explosions[i].Playing)
                     explosions.RemoveAt(i);
-            }*/
+            }
 
             base.Update(gameTime);
         }
