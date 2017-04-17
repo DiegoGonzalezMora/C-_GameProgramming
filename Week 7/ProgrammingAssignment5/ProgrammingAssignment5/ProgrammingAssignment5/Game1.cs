@@ -38,8 +38,8 @@ namespace ProgrammingAssignment5
         Explosion explosion;
 
         // click processing
-        bool rightClickStarted = false;
-        bool rightButtonReleased = true;
+        bool leftClickStarted = false;
+        bool leftButtonReleased = true;
 
         public Game1()
         {
@@ -103,20 +103,20 @@ namespace ProgrammingAssignment5
             MouseState mouse = Mouse.GetState();
 
             // check for right click started
-            if (mouse.RightButton == ButtonState.Pressed &&
-                rightButtonReleased)
+            if (mouse.LeftButton == ButtonState.Pressed &&
+                leftButtonReleased)
             {
-                rightClickStarted = true;
-                rightButtonReleased = false;
+                leftClickStarted = true;
+                leftButtonReleased = false;
             }
-            else if (mouse.RightButton == ButtonState.Released)
+            else if (mouse.LeftButton == ButtonState.Released)
             {
-                rightButtonReleased = true;
+                leftButtonReleased = true;
 
                 // if right click finished, add new pickup to list
-                if (rightClickStarted)
+                if (leftClickStarted)
                 {
-                    rightClickStarted = false;
+                    leftClickStarted = false;
                     
                     //add a new mine to the end of the list of mines
                     mines.Add(new Mine(mineSprite, mouse.X, mouse.Y));
@@ -165,11 +165,11 @@ namespace ProgrammingAssignment5
             }
 
             // remove not playing explosion from the list. Shouldn't this remove the sprite? o.O
-            for (int i = explosions.Count - 1; i >= 0; i--)
+           /* for (int i = explosions.Count - 1; i >= 0; i--)
             {
                 if (!explosions[i].Playing)
                     explosions.RemoveAt(i);
-            }
+            }*/
 
             base.Update(gameTime);
         }
