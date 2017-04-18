@@ -168,7 +168,7 @@ namespace ProgrammingAssignment5
                 explosion.Update(gameTime);
             }
 
-            // remove not playing explosion from the list. Shouldn't this remove the sprite? o.O
+            // remove not playing explosion from the list. 
             for (int i = explosions.Count - 1; i >= 0; i--)
             {
                 if (!explosions[i].Playing)
