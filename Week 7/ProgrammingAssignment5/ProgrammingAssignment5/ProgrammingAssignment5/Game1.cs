@@ -171,8 +171,9 @@ namespace ProgrammingAssignment5
             // remove not playing explosion from the list. 
             for (int i = explosions.Count - 1; i >= 0; i--)
             {
-                if (!explosions[i].Playing)
+                if (!explosions[i].Playing) { 
                     explosions.RemoveAt(i);
+                }
             }
 
             base.Update(gameTime);
