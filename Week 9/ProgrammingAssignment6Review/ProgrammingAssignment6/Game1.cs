@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using XnaCards;
-using System;
+using TeddyMineExplosion;
 
 namespace ProgrammingAssignment6
 {
@@ -38,7 +38,7 @@ namespace ProgrammingAssignment6
         Message playerScoreMessage;
         Message dealerScoreMessage;
         Message winnerMessage;
-        List<Message> messages = new List<Message>();
+		List<Message> messages = new List<Message>();
 
         // message placement
         const int ScoreMessageTopOffset = 25;
@@ -48,9 +48,9 @@ namespace ProgrammingAssignment6
 
         // menu buttons
         Texture2D quitButtonSprite;
-        Texture2D standButtonSprite;
-        Texture2D hitButtonSprite;
         List<MenuButton> menuButtons = new List<MenuButton>();
+        MenuButton hitButton;
+        MenuButton standButton;
 
         // menu button placement
         const int TopMenuButtonOffset = TopCardOffset;
@@ -103,55 +103,58 @@ namespace ProgrammingAssignment6
             deck = new Deck(Content, 0, 0);
             deck.Shuffle();
 
+            Card card;
             // first player card
-            Card firstPlayerCard = deck.TakeTopCard();
-            firstPlayerCard = new Card(Content, firstPlayerCard.Rank, firstPlayerCard.Suit,
-                HorizontalCardOffset, TopCardOffset);
-            playerHand.Add(firstPlayerCard);
-            firstPlayerCard.FlipOver();
+            card = deck.TakeTopCard();
+            card.FlipOver();
+            card.X = HorizontalCardOffset;
+            card.Y = TopCardOffset;
+            playerHand.Add(card);
 
             // first dealer card
-            Card firstDealerCard = deck.TakeTopCard();
-            firstDealerCard = new Card(Content, firstDealerCard.Rank, firstDealerCard.Suit,
-                WindowWidth - HorizontalCardOffset, TopCardOffset);
-            dealerHand.Add(firstDealerCard);
-
+            card = deck.TakeTopCard();
+            //card.FlipOver();
+            card.X = WindowWidth - HorizontalCardOffset;
+            card.Y = TopCardOffset;
+            dealerHand.Add(card);
 
             // second player card
-            Card secondPlayerCard = deck.TakeTopCard();
-            secondPlayerCard = new Card(Content, secondPlayerCard.Rank, secondPlayerCard.Suit,
-                HorizontalCardOffset, TopCardOffset + VerticalCardSpacing);
-            playerHand.Add(secondPlayerCard);
-            secondPlayerCard.FlipOver();
+            card = deck.TakeTopCard();
+            card.FlipOver();
+            card.X = HorizontalCardOffset;
+            card.Y = TopCardOffset + VerticalCardSpacing;
+            playerHand.Add(card);
 
             // second dealer card
-            Card secondDealerCard = deck.TakeTopCard();
-            secondDealerCard = new Card(Content, secondDealerCard.Rank, secondDealerCard.Suit,
-                WindowWidth - HorizontalCardOffset, TopCardOffset + VerticalCardSpacing);
-            dealerHand.Add(secondDealerCard);
-            secondDealerCard.FlipOver();
+            card = deck.TakeTopCard();
+            card.FlipOver();
+            card.X = WindowWidth - HorizontalCardOffset;
+            card.Y = TopCardOffset + VerticalCardSpacing; 
+            dealerHand.Add(card);
+
 
             // load sprite font, create message for player score and add to list
-            messageFont = Content.Load<SpriteFont>(@"fonts/Arial24");
+            messageFont = Content.Load<SpriteFont>(@"fonts\Arial24");
             playerScoreMessage = new Message(ScoreMessagePrefix + GetBlockjuckScore(playerHand).ToString(),
                 messageFont,
                 new Vector2(HorizontalMessageOffset, ScoreMessageTopOffset));
             messages.Add(playerScoreMessage);
 
             // load quit button sprite for later use
-            quitButtonSprite = Content.Load<Texture2D>(@"graphics/quitbutton");
+            quitButtonSprite = Content.Load<Texture2D>(@"graphics\quitbutton");
 
             // create hit button and add to list
-            hitButtonSprite = Content.Load<Texture2D>(@"graphics/hitbutton");
-            Vector2 hitButtonCenter = new Vector2(WindowWidth / 2, TopCardOffset);
-            MenuButton hitButton = new MenuButton(hitButtonSprite, hitButtonCenter, GameState.PlayerHitting);
+            Texture2D hitButtonSprite = Content.Load<Texture2D>(@"graphics/hitbutton");
+            hitButton = new MenuButton(hitButtonSprite, new Vector2(HorizontalMenuButtonOffset, 
+                                                        TopMenuButtonOffset), GameState.PlayerHitting);
             menuButtons.Add(hitButton);
 
             // create stand button and add to list
-            standButtonSprite = Content.Load<Texture2D>(@"graphics/standbutton");
-            Vector2 standButtonCenter = new Vector2(WindowWidth / 2, TopCardOffset + VerticalCardSpacing);
-            MenuButton standButton = new MenuButton(standButtonSprite, standButtonCenter, GameState.WaitingForDealer);
+            Texture2D standButtonSprite = Content.Load<Texture2D>(@"graphics/standbutton");
+            standButton = new MenuButton(standButtonSprite, new Vector2(HorizontalMenuButtonOffset, 
+                                                        TopMenuButtonOffset+VerticalMenuButtonSpacing), GameState.WaitingForDealer);
             menuButtons.Add(standButton);
+            
         }
 
         /// <summary>
@@ -172,120 +175,107 @@ namespace ProgrammingAssignment6
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-
-
+            
             // update menu buttons as appropriate
-            MouseState mouse = Mouse.GetState();
-            if (currentState == GameState.WaitingForPlayer ||
-                currentState == GameState.DisplayingHandResults)
-            {
+            if (currentState == GameState.WaitingForPlayer || currentState == GameState.DisplayingHandResults) {
                 foreach (MenuButton button in menuButtons)
                 {
+                    MouseState mouse = Mouse.GetState();
                     button.Update(mouse);
                 }
             }
 
-            // game state-specific processing
+            Card card;
             switch (currentState)
             {
                 case GameState.PlayerHitting:
-                    playerHit = true;
-                    Card nextPlayerCard = deck.TakeTopCard();
-                    nextPlayerCard = new Card(Content, nextPlayerCard.Rank, nextPlayerCard.Suit,
-                        HorizontalCardOffset, TopCardOffset + VerticalCardSpacing * (playerHand.Count));
-                    playerHand.Add(nextPlayerCard);
-                    nextPlayerCard.FlipOver();
-                    playerScoreMessage.Text = ScoreMessagePrefix + GetBlockjuckScore(playerHand).ToString();
+                    card = deck.TakeTopCard();
+                    playerHand.Add(card);
+                    card.FlipOver();
+                    card.X = HorizontalCardOffset;
+                    card.Y = (playerHand.Count - 1) * VerticalCardSpacing + TopCardOffset;
                     currentState = GameState.WaitingForDealer;
-                    break;
+                    playerHit = true;
 
+                    messages.Remove(playerScoreMessage);
+                    playerScoreMessage = new Message(ScoreMessagePrefix + GetBlockjuckScore(playerHand).ToString(),
+                        messageFont,
+                        new Vector2(HorizontalMessageOffset, ScoreMessageTopOffset));
+                    messages.Add(playerScoreMessage);
+                    break;
                 case GameState.WaitingForDealer:
-                    if (GetBlockjuckScore(dealerHand) <= GetBlockjuckScore(playerHand))
+                    // Dealer have less than 16 points and player is not busted
+                    if ((GetBlockjuckScore(dealerHand) <= 16) && (GetBlockjuckScore(playerHand) <= MaxHandValue))
                     {
                         currentState = GameState.DealerHitting;
                     }
-                    else
-                    {
-                        currentState = GameState.WaitingForPlayer;
+                    else {
+                        currentState = GameState.CheckingHandOver;
                     }
-
                     break;
-
                 case GameState.DealerHitting:
-                    dealerHit = true;
-                    Card nextDealerCard = deck.TakeTopCard();
-                    nextDealerCard = new Card(Content, nextDealerCard.Rank, nextDealerCard.Suit,
-                        WindowWidth - HorizontalCardOffset, TopCardOffset + VerticalCardSpacing * (dealerHand.Count));
-                    dealerHand.Add(nextDealerCard);
-                    nextDealerCard.FlipOver();
+                    card = deck.TakeTopCard();
+                    dealerHand.Add(card);
+                    card.FlipOver();
+                    card.X = WindowWidth - HorizontalCardOffset;
+                    card.Y = (dealerHand.Count - 1) * VerticalCardSpacing + TopCardOffset;
                     currentState = GameState.CheckingHandOver;
+                    dealerHit = true;
+
                     break;
-
                 case GameState.CheckingHandOver:
-                    if (!dealerHit &&
-                        !playerHit)
-                    {
-                        if (GetBlockjuckScore(dealerHand) > GetBlockjuckScore(playerHand))
+                    // If some of us are busted or we both stand
+                    if ((GetBlockjuckScore(dealerHand) > MaxHandValue || GetBlockjuckScore(playerHand) > MaxHandValue) || (!dealerHit && !playerHit)) {
+                        // Player stand and was not busted and have more points than the dealer
+                        if (!playerHit && (GetBlockjuckScore(playerHand) <= MaxHandValue) && (GetBlockjuckScore(playerHand) > GetBlockjuckScore(dealerHand)))
                         {
-
-                            const string dealerWinMessage = "Dealer win !";
-                            Message resultMessage = new Message(dealerWinMessage, messageFont, winnerMessageLocation);
-                            messages.Add(resultMessage);
-                            dealerHand[0].FlipOver();
-                            currentState = GameState.DisplayingHandResults;
+                            currentState = GameState.DealerHitting;
+                            break;
                         }
+                        // If we both are busted or we both have the same points nobody wins
+                        else if ((GetBlockjuckScore(dealerHand) > MaxHandValue && GetBlockjuckScore(playerHand) > MaxHandValue) || (GetBlockjuckScore(dealerHand) == GetBlockjuckScore(playerHand))) {
+                            winnerMessage = new Message("Nobody won!", messageFont, winnerMessageLocation);
+                        }
+                        // Else if dealer get busted or the dealer dont get busted and player have more points, he wins
+                        else if ((GetBlockjuckScore(dealerHand) > MaxHandValue) || ((GetBlockjuckScore(dealerHand) <= MaxHandValue) && (GetBlockjuckScore(playerHand) <= MaxHandValue) && (GetBlockjuckScore(playerHand) > GetBlockjuckScore(dealerHand)))) {
+                            winnerMessage = new Message("Player won!", messageFont, winnerMessageLocation);
+                        }
+                        // Else player get busted
                         else
-                        {
-                            const string playerWinMessage = "Player win !";
-                            Message resultMessage = new Message(playerWinMessage, messageFont, winnerMessageLocation);
-                            messages.Add(resultMessage);
-                            dealerHand[0].FlipOver();
+                            winnerMessage = new Message("Dealer won!", messageFont, winnerMessageLocation);
 
-                            menuButtons.Clear();
-                            Vector2 quitButtonCenter = new Vector2(WindowWidth / 2, TopCardOffset + VerticalCardSpacing * 3);
-                            MenuButton quitButton = new MenuButton(quitButtonSprite, quitButtonCenter, GameState.Exiting);
-                            menuButtons.Add(quitButton);
-                            currentState = GameState.DisplayingHandResults;
-                        }
-                    }
+                        dealerHand[0].FlipOver();
+                        messages.Remove(dealerScoreMessage);
+                        dealerScoreMessage = new Message(ScoreMessagePrefix + GetBlockjuckScore(dealerHand).ToString(),
+                            messageFont,
+                            new Vector2(4 * HorizontalMessageOffset, ScoreMessageTopOffset));
+                        messages.Add(dealerScoreMessage);
 
-                    if (GetBlockjuckScore(dealerHand) > MaxHandValue ||
-                        GetBlockjuckScore(playerHand) > MaxHandValue)
-                    {
-                        if (GetBlockjuckScore(dealerHand) <= MaxHandValue)
-                        {
-                            const string dealerWinMessage = "Dealer win !";
-                            Message resultMessage = new Message(dealerWinMessage, messageFont, winnerMessageLocation);
-                            messages.Add(resultMessage);
-                        }
-                        else
-                        {
-                            const string playerWinMessage = "Player win !";
-                            Message resultMessage = new Message(playerWinMessage, messageFont, winnerMessageLocation);
-                            messages.Add(resultMessage);
-                            dealerHand[0].FlipOver();
-                        }
-                        menuButtons.Clear();
-                        Vector2 quitButtonCenter = new Vector2(WindowWidth / 2, TopCardOffset + VerticalCardSpacing * 3);
-                        MenuButton quitButton = new MenuButton(quitButtonSprite, quitButtonCenter, GameState.Exiting);
-                        menuButtons.Add(quitButton);
+                        messages.Add(winnerMessage);
                         currentState = GameState.DisplayingHandResults;
+
+                        // remove and add the appropiate buttons
+                        menuButtons.Remove(hitButton);
+                        menuButtons.Remove(standButton);
+                        Texture2D quitButtonSprite = Content.Load<Texture2D>(@"graphics/quitbutton");
+                        MenuButton quitButton = new MenuButton(quitButtonSprite, new Vector2(HorizontalMenuButtonOffset,
+                                                                    WindowHeight - VerticalMenuButtonSpacing), GameState.Exiting);
+                        menuButtons.Add(quitButton);
                     }
-                    else
-                    {
+                    // No one is busted and player hit again
+                    else {
+                        dealerHit = false;
+                        playerHit = false;
                         currentState = GameState.WaitingForPlayer;
                     }
                     break;
-
-                case GameState.DisplayingHandResults:
-                    break;
-
                 case GameState.Exiting:
-                    this.Exit();
-                    break;
-                default:
+                    Exit();
                     break;
             }
+
+            // game state-specific processing
+
 
             base.Update(gameTime);
         }
@@ -297,30 +287,31 @@ namespace ProgrammingAssignment6
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Goldenrod);
-
+						
             spriteBatch.Begin();
 
             // draw hands
-            foreach (Card card in playerHand)
-            {
+            foreach (Card card in playerHand) {
                 card.Draw(spriteBatch);
             }
+
             foreach (Card card in dealerHand)
             {
                 card.Draw(spriteBatch);
             }
 
+
             // draw messages
-            foreach (Message message in messages)
-            {
+            foreach (Message message in messages) {
                 message.Draw(spriteBatch);
             }
 
+
             // draw menu buttons
-            foreach (MenuButton button in menuButtons)
-            {
+            foreach (MenuButton button in menuButtons) {
                 button.Draw(spriteBatch);
             }
+
 
             spriteBatch.End();
 
