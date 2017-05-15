@@ -82,24 +82,31 @@ namespace GameProject
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // load audio content
+            burgerDamage = Content.Load<SoundEffect>(@"audio\BurgerDamage");
+            burgerDeath = Content.Load<SoundEffect>(@"audio\BurgerDeath");
+            burgerShot = Content.Load<SoundEffect>(@"audio\BurgerShot");
+            explosion = Content.Load<SoundEffect>(@"audio\Explosion");
+            teddyBounce = Content.Load<SoundEffect>(@"audio\TeddyBounce");
+            teddyShot = Content.Load<SoundEffect>(@"audio\TeddyShot");
 
             // load sprite font
+            font = Content.Load<SpriteFont>(@"fonts\Arial20");
 
             // load projectile and explosion sprites
-            teddyBearProjectileSprite = Content.Load<Texture2D>(@"graphics/teddyBearProjectile");
-            frenchFriesSprite = Content.Load<Texture2D>(@"graphics/frenchFries");
-            explosionSpriteStrip = Content.Load<Texture2D>(@"graphics/explosion");
+            frenchFriesSprite = Content.Load<Texture2D>(@"graphics\frenchfries");
+            teddyBearProjectileSprite = Content.Load<Texture2D>(@"graphics\teddybearprojectile");
+            explosionSpriteStrip = Content.Load<Texture2D>(@"graphics\explosion");
 
             // add initial game objects
-            burger = new Burger(Content, @"graphics/burger", GameConstants.WindowWidth / 2, GameConstants.WindowHeight * 7 / 8 , null);
+            burger = new Burger(Content, @"graphics\burger", GameConstants.WindowWidth / 2, GameConstants.WindowHeight * 7 / 8, null);
 
-
-            for (int i = GameConstants.MaxBears; i > 0; i--)
+            for (int i = 0; i < GameConstants.MaxBears; i++)
             {
                 SpawnBear();
             }
 
             // set initial health and score strings
+
         }
 
         /// <summary>
@@ -129,29 +136,11 @@ namespace GameProject
             foreach (TeddyBear bear in bears)
             {
                 bear.Update(gameTime);
-
-                foreach (Projectile projectile in projectiles)
-                {
-                    //Deactive teddies hit by a projectile
-                    if (projectile.Type == ProjectileType.FrenchFries) {
-                        if (bear.Active && projectile.Active
-                            && bear.CollisionRectangle.Intersects(projectile.CollisionRectangle)) {
-                            bear.Active = false;
-                            projectile.Active = false;
-
-                            explosions.Add(new Explosion(explosionSpriteStrip, bear.Location.X, bear.Location.Y));
-                        }
-                    }
-                }
-
-                // check and resolve collisions between burger and teddy bears
-                if (bear.Active && bear.CollisionRectangle.Intersects(burger.CollisionRectangle)) {
-                    burger.Health -= GameConstants.BearDamage;
-                    bear.Active = false;
-                    explosions.Add(new Explosion(explosionSpriteStrip, burger.CollisionRectangle.X, burger.CollisionRectangle.Y));
-                }
             }
-
+            foreach (Projectile projectile in projectiles)
+            {
+                projectile.Update(gameTime);
+            }
             foreach (Explosion explosion in explosions)
             {
                 explosion.Update(gameTime);
@@ -160,71 +149,99 @@ namespace GameProject
             // check and resolve collisions between teddy bears
             for (int i = 0; i < bears.Count; i++)
             {
-                for(int j = i + 1; j < bears.Count; j++)
+                for (int j = i + 1; j < bears.Count; j++)
                 {
                     if (bears[i].Active && bears[j].Active)
                     {
-                        CollisionResolutionInfo collisionInfo;
-
-                        collisionInfo = CollisionUtils.CheckCollision(gameTime.ElapsedGameTime.Milliseconds, 
-                            GameConstants.WindowWidth, GameConstants.WindowHeight, bears[i].Velocity, 
-                            bears[i].DrawRectangle, bears[j].Velocity, bears[j].DrawRectangle);
-
-                        if (collisionInfo != null) {
-                            //First collisioned teddy
-                            if (collisionInfo.FirstOutOfBounds)
-                                bears[i].Active = false;
-                            else {
-                                bears[i].Velocity = collisionInfo.FirstVelocity;
-                                bears[i].DrawRectangle = collisionInfo.FirstDrawRectangle;
-                            }
-
-                            //Second collisioned teddy
-                            if (collisionInfo.SecondOutOfBounds)
-                                bears[j].Active = false;
-                            else
+                        CollisionResolutionInfo teddyCollision = CollisionUtils.CheckCollision(gameTime.ElapsedGameTime.Milliseconds,
+                            graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight,
+                            bears[i].Velocity, bears[i].DrawRectangle, bears[j].Velocity, bears[j].DrawRectangle);
+                        if (teddyCollision != null)
+                        {
+                            if (teddyCollision.FirstOutOfBounds)
                             {
-                                bears[j].Velocity = collisionInfo.SecondVelocity;
-                                bears[j].DrawRectangle = collisionInfo.SecondDrawRectangle;
+                                bears[i].Active = false;
+                            }
+                            else if (!teddyCollision.FirstOutOfBounds)
+                            {
+                                bears[i].Velocity = teddyCollision.FirstVelocity;
+                                bears[i].DrawRectangle = teddyCollision.FirstDrawRectangle;
+                            }
+                            if (teddyCollision.SecondOutOfBounds)
+                            {
+                                bears[j].Active = false;
+                            }
+                            else if (!teddyCollision.SecondOutOfBounds)
+                            {
+                                bears[j].Velocity = teddyCollision.SecondVelocity;
+                                bears[j].DrawRectangle = teddyCollision.SecondDrawRectangle;
                             }
                         }
                     }
                 }
             }
 
+            // check and resolve collisions between burger and teddy bears
+            foreach (TeddyBear bear in bears)
+            {
+                if (bear.Active)
+                {
+                    if (bear.CollisionRectangle.Intersects(burger.CollisionRectangle))
+                    {
+                        bear.Active = false;
+                        explosions.Add(new Explosion(explosionSpriteStrip, bear.DrawRectangle.Center.X, bear.DrawRectangle.Center.Y));
+                        burger.Health = burger.Health - GameConstants.BearDamage;
+                    }
+                }
+            }
 
             // check and resolve collisions between burger and projectiles
-            foreach (Projectile p in projectiles) {
-                p.Update(gameTime);
-
-                if (p.Active && p.Type == ProjectileType.TeddyBear && p.CollisionRectangle.Intersects(burger.CollisionRectangle)) {
-                    p.Active = false;
-                    burger.Health -= GameConstants.FrenchFriesProjectileDamage;
+            foreach (Projectile projectile in projectiles)
+            {
+                if (projectile.Type == ProjectileType.TeddyBear && projectile.Active && projectile.CollisionRectangle.Intersects(burger.CollisionRectangle))
+                {
+                    {
+                        projectile.Active = false;
+                        burger.Health = burger.Health - GameConstants.TeddyBearProjectileDamage;
+                    }
                 }
             }
 
             // check and resolve collisions between teddy bears and projectiles
+            foreach (TeddyBear bear in bears)
+            {
+                bear.Update(gameTime);
+
+                foreach (Projectile projectile in projectiles)
+                {
+                    if (projectile.Type == ProjectileType.FrenchFries &&
+                        bear.Active && projectile.Active &&
+                        bear.CollisionRectangle.Intersects(projectile.CollisionRectangle))
+                    {
+                        bear.Active = false;
+                        projectile.Active = false;
+                        explosions.Add(new Explosion(explosionSpriteStrip, bear.DrawRectangle.Center.X, bear.DrawRectangle.Center.Y));
+                    }
+                }
+            }
 
             // clean out inactive teddy bears and add new ones as necessary
             for (int i = bears.Count - 1; i >= 0; i--)
             {
-                if
-                    (!bears[i].Active)
+                if (!bears[i].Active)
                 {
                     bears.RemoveAt(i);
+                    while (bears.Count < GameConstants.MaxBears)
+                    {
+                        SpawnBear();
+                    }
                 }
-            }
-
-            // Spawn bears until we reach MaxBears constant
-            while (bears.Count < GameConstants.MaxBears) {
-                this.SpawnBear();
             }
 
             // clean out inactive projectiles
             for (int i = projectiles.Count - 1; i >= 0; i--)
             {
-                if
-                    (!projectiles[i].Active)
+                if (!projectiles[i].Active)
                 {
                     projectiles.RemoveAt(i);
                 }
@@ -233,8 +250,7 @@ namespace GameProject
             // clean out finished explosions
             for (int i = explosions.Count - 1; i >= 0; i--)
             {
-                if
-                    (explosions[i].Finished)
+                if (explosions[i].Finished)
                 {
                     explosions.RemoveAt(i);
                 }
@@ -249,12 +265,13 @@ namespace GameProject
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.DarkGray);
 
             spriteBatch.Begin();
 
             // draw game objects
             burger.Draw(spriteBatch);
+
             foreach (TeddyBear bear in bears)
             {
                 bear.Draw(spriteBatch);
@@ -285,10 +302,14 @@ namespace GameProject
         public static Texture2D GetProjectileSprite(ProjectileType type)
         {
             // replace with code to return correct projectile sprite based on projectile type
-            if (type == ProjectileType.FrenchFries)
+            if (ProjectileType.FrenchFries == type)
+            {
                 return frenchFriesSprite;
+            }
             else
+            {
                 return teddyBearProjectileSprite;
+            }
         }
 
         /// <summary>
@@ -310,30 +331,27 @@ namespace GameProject
         private void SpawnBear()
         {
             // generate random location
-            int y = GetRandomLocation(GameConstants.SpawnBorderSize, GameConstants.WindowHeight - GameConstants.SpawnBorderSize*2);
-            int x = GetRandomLocation(GameConstants.SpawnBorderSize, GameConstants.WindowWidth - GameConstants.SpawnBorderSize*2);
+            int X = GetRandomLocation(GameConstants.SpawnBorderSize, GameConstants.WindowWidth - (2 * GameConstants.SpawnBorderSize));
+            int Y = GetRandomLocation(GameConstants.SpawnBorderSize, GameConstants.WindowHeight - (2 * GameConstants.SpawnBorderSize));
 
             // generate random velocity
-            float speed = GameConstants.MinBearSpeed + RandomNumberGenerator.NextFloat(GameConstants.BearSpeedRange);
-            float angle = RandomNumberGenerator.NextFloat((float)Math.PI*2);
-            Vector2 velocity = new Vector2((float)(speed * Math.Cos(angle)), (float)(speed * Math.Sin(angle)));
+            float velocity = GameConstants.MinBearSpeed + RandomNumberGenerator.NextFloat(GameConstants.BearSpeedRange);
+            float angle = RandomNumberGenerator.NextFloat((float)Math.PI * 2);
+            Vector2 bearVector = new Vector2(velocity * (float)Math.Cos(angle), velocity * (float)Math.Sin(angle));
 
             // create new bear
-            TeddyBear bear = new TeddyBear(Content, @"graphics/teddybear", x, y, velocity, null, null);
+            TeddyBear newBear = new TeddyBear(Content, @"graphics\teddybear", X, Y, bearVector, null, null);
 
             // make sure we don't spawn into a collision
-            
-            List<Rectangle> rectangles = GetCollisionRectangles();
-            while (!CollisionUtils.IsCollisionFree(bear.CollisionRectangle, rectangles)) {
-                y = GetRandomLocation(GameConstants.SpawnBorderSize, GameConstants.WindowHeight - GameConstants.SpawnBorderSize * 2);
-                x = GetRandomLocation(GameConstants.SpawnBorderSize, GameConstants.WindowWidth - GameConstants.SpawnBorderSize * 2);
-
-                bear.X = x;
-                bear.Y = y;
+            List<Rectangle> collisionRectangles = new List<Rectangle>(GetCollisionRectangles());
+            while (CollisionUtils.IsCollisionFree(newBear.CollisionRectangle, collisionRectangles) == false)
+            {
+                newBear.X = GetRandomLocation(GameConstants.SpawnBorderSize, GameConstants.WindowWidth - (2 * GameConstants.SpawnBorderSize));
+                newBear.Y = GetRandomLocation(GameConstants.SpawnBorderSize, GameConstants.WindowHeight - (2 * GameConstants.SpawnBorderSize));
             }
 
             // add new bear to list
-            bears.Add(bear);
+            bears.Add(newBear);
 
         }
 

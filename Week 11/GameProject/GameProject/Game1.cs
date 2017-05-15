@@ -82,8 +82,15 @@ namespace GameProject
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // load audio content
+            burgerDamage = Content.Load<SoundEffect>(@"sounds/BurgerDamage");
+            burgerDeath = Content.Load<SoundEffect>(@"sounds/BurgerDeath");
+            burgerShot = Content.Load<SoundEffect>(@"sounds/BurgerShot");
+            explosion = Content.Load<SoundEffect>(@"sounds/Explosion");
+            teddyBounce = Content.Load<SoundEffect>(@"sounds/TeddyBounce");
+            teddyShot = Content.Load<SoundEffect>(@"sounds/TeddyShot");
 
             // load sprite font
+            font = Content.Load<SpriteFont>(@"font/Arial20"); ;
 
             // load projectile and explosion sprites
             teddyBearProjectileSprite = Content.Load<Texture2D>(@"graphics/teddyBearProjectile");
@@ -91,7 +98,7 @@ namespace GameProject
             explosionSpriteStrip = Content.Load<Texture2D>(@"graphics/explosion");
 
             // add initial game objects
-            burger = new Burger(Content, @"graphics/burger", GameConstants.WindowWidth / 2, GameConstants.WindowHeight * 7 / 8 , null);
+            burger = new Burger(Content, @"graphics/burger", GameConstants.WindowWidth / 2, GameConstants.WindowHeight * 7 / 8 , burgerShot);
 
 
             for (int i = GameConstants.MaxBears; i > 0; i--)
@@ -100,6 +107,8 @@ namespace GameProject
             }
 
             // set initial health and score strings
+            setBurgerHealthString();
+            setScoreString();
         }
 
         /// <summary>
@@ -122,8 +131,8 @@ namespace GameProject
                 Exit();
 
             // get current mouse state and update burger
-            MouseState mouse = Mouse.GetState();
-            burger.Update(gameTime, mouse);
+            KeyboardState keyboard = Keyboard.GetState();
+            burger.Update(gameTime, keyboard);
 
             // update other game objects
             foreach (TeddyBear bear in bears)
@@ -138,8 +147,9 @@ namespace GameProject
                             && bear.CollisionRectangle.Intersects(projectile.CollisionRectangle)) {
                             bear.Active = false;
                             projectile.Active = false;
-
-                            explosions.Add(new Explosion(explosionSpriteStrip, bear.Location.X, bear.Location.Y));
+                            score += GameConstants.BearPoints;
+                            setScoreString();
+                            explosions.Add(new Explosion(explosionSpriteStrip, bear.Location.X, bear.Location.Y, explosion));
                         }
                     }
                 }
@@ -147,8 +157,11 @@ namespace GameProject
                 // check and resolve collisions between burger and teddy bears
                 if (bear.Active && bear.CollisionRectangle.Intersects(burger.CollisionRectangle)) {
                     burger.Health -= GameConstants.BearDamage;
+                    setBurgerHealthString();
+                    burgerDamage.Play();
                     bear.Active = false;
-                    explosions.Add(new Explosion(explosionSpriteStrip, burger.CollisionRectangle.X, burger.CollisionRectangle.Y));
+                    explosions.Add(new Explosion(explosionSpriteStrip, burger.CollisionRectangle.X, burger.CollisionRectangle.Y, explosion));
+                    CheckBurgerKill();
                 }
             }
 
@@ -187,6 +200,9 @@ namespace GameProject
                                 bears[j].Velocity = collisionInfo.SecondVelocity;
                                 bears[j].DrawRectangle = collisionInfo.SecondDrawRectangle;
                             }
+
+                            // Collision sound
+                            teddyBounce.Play();
                         }
                     }
                 }
@@ -200,10 +216,11 @@ namespace GameProject
                 if (p.Active && p.Type == ProjectileType.TeddyBear && p.CollisionRectangle.Intersects(burger.CollisionRectangle)) {
                     p.Active = false;
                     burger.Health -= GameConstants.FrenchFriesProjectileDamage;
+                    setBurgerHealthString();
+                    burgerDamage.Play();
+                    CheckBurgerKill();
                 }
             }
-
-            // check and resolve collisions between teddy bears and projectiles
 
             // clean out inactive teddy bears and add new ones as necessary
             for (int i = bears.Count - 1; i >= 0; i--)
@@ -240,6 +257,8 @@ namespace GameProject
                 }
             }
 
+
+
             base.Update(gameTime);
         }
 
@@ -267,6 +286,9 @@ namespace GameProject
             {
                 explosion.Draw(spriteBatch);
             }
+
+            spriteBatch.DrawString(font, healthString, GameConstants.HealthLocation, Color.Black);
+            spriteBatch.DrawString(font, scoreString, GameConstants.ScoreLocation, Color.Black);
 
             // draw score and health
 
@@ -319,10 +341,9 @@ namespace GameProject
             Vector2 velocity = new Vector2((float)(speed * Math.Cos(angle)), (float)(speed * Math.Sin(angle)));
 
             // create new bear
-            TeddyBear bear = new TeddyBear(Content, @"graphics/teddybear", x, y, velocity, null, null);
+            TeddyBear bear = new TeddyBear(Content, @"graphics/teddybear", x, y, velocity, teddyBounce, teddyShot);
 
             // make sure we don't spawn into a collision
-            
             List<Rectangle> rectangles = GetCollisionRectangles();
             while (!CollisionUtils.IsCollisionFree(bear.CollisionRectangle, rectangles)) {
                 y = GetRandomLocation(GameConstants.SpawnBorderSize, GameConstants.WindowHeight - GameConstants.SpawnBorderSize * 2);
@@ -370,12 +391,34 @@ namespace GameProject
             }
             return collisionRectangles;
         }
+        /// <summary>
+        /// Update the burger health
+        /// </summary>
+        /// <returns></returns>
+        private string setBurgerHealthString()
+        {
+            return healthString = GameConstants.HealthPrefix + burger.Health;
+        }
+
+        /// <summary>
+        /// Uppdate the score
+        /// </summary>
+        /// <returns></returns>
+        private string setScoreString()
+        {
+            return scoreString = GameConstants.ScorePrefix + score;
+        }
 
         /// <summary>
         /// Checks to see if the burger has just been killed
         /// </summary>
         private void CheckBurgerKill()
         {
+            if (burger.Health<=0 && !burgerDead)
+            {
+                burgerDead = true;
+                burgerDeath.Play();
+            }
 
         }
 
